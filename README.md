@@ -40,7 +40,7 @@ Diagnose, configure, and tune AMD silicon directly.
 | `gfx-target-chooser` | Pick the right `gfx942` / `gfx90a` / `gfx1100` target and matching compiler flags. |
 | `mi300x-tuner` | Opinionated training and inference tuning for MI300X — TunableOp, FSDP, FlashAttention. |
 | `rocm-container-picker` | Map a workload to a known-good `rocm/*` container image. |
-| `ryzen-ai-onnx` | Deploy ONNX models to Ryzen AI NPUs. |
+| `ryzen-ai-deploy` | Prepare, quantize, and deploy models to Ryzen AI NPUs across the ONNX, PyTorch, and hybrid CPU/NPU/iGPU paths. |
 
 ### Cross-stack porting and integration
 
@@ -87,7 +87,7 @@ So skills here are **federated**: each skill is owned and versioned by the team 
        ┌───────────────────────────────┼────────────────────────────────┐
        │                               │                                │
    ROCm/ROCm                       ROCm/HIP                       Ryzen AI repo
-   rocm-doctor/                    cuda-to-hip/                   ryzen-ai-onnx/
+   rocm-doctor/                    cuda-to-hip/                   ryzen-ai-deploy/
    gfx-target-chooser/             triton-amd-port/               ...
    ...                             ...
 ```
@@ -96,7 +96,7 @@ Concretely:
 
 - The `cuda-to-hip` skill lives with the HIP project.
 - `rocm-doctor` lives with the ROCm release tree.
-- `ryzen-ai-onnx` ships with Ryzen AI.
+- `ryzen-ai-deploy` ships with Ryzen AI.
 
 Each skill stays close to the engineers who ship the underlying product, the CI that validates it, and the release tag that pins it.
 
