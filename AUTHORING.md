@@ -155,7 +155,7 @@ Test the skill the way users will hit it:
 The structural rules from this guide (frontmatter shape, name format, description length, and `SKILL.md` body size) are enforced by `scripts/validate_skills.py` and run on every pull request. Run them locally before pushing:
 
 ```bash
-./scripts/check.sh   # validates every skill (same command CI runs)
+./scripts/check.sh   # validates every skill and plugin manifests (same command CI runs)
 ```
 
 The validator checks every skill under `skills/` for:
@@ -163,4 +163,9 @@ The validator checks every skill under `skills/` for:
 - a `SKILL.md` file with a valid YAML frontmatter block
 - `name`: lowercase-with-hyphens, ≤ 64 characters, no `anthropic` / `claude` substrings, matches the directory name
 - `description`: non-empty, ≤ 1024 characters
-- `SKILL.md` body: ≤ 500 lines (push longer reference material into sibling files)
+- `SKILL.md` body: ≤ 500 lines
+
+It also checks the plugin manifests:
+
+- every skill under `skills/` has a matching entry in `.claude-plugin/marketplace.json` (and vice versa), with `source` set to `./skills/<name>` and a non-empty human-readable `description`
+- `.cursor-plugin/plugin.json` is up to date with `.claude-plugin/plugin.json` and the discovered skills (regenerate with `./scripts/publish.sh`) (push longer reference material into sibling files)

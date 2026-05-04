@@ -1,0 +1,24 @@
+{
+  "name": "amd-skills",
+  "owner": {
+    "name": "AMD"
+  },
+  "metadata": {
+    "description": "Agent Skills for AMD-optimized workflows",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "local-ai-app-integration",
+      "source": "./skills/local-ai-app-integration",
+      "skills": "./",
+      "description": "Integrate local AI into cloud LLM apps for offline support, better privacy, and lower API costs."
+    },
+    {
+      "name": "local-ai-use",
+      "source": "./skills/local-ai-use",
+      "skills": "./",
+      "description": "Route image generation, text-to-speech, and speech-to-text through a local AI Server to reduce token/cost usage."
+    }
+  ]
+}

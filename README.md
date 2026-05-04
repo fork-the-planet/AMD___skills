@@ -64,8 +64,8 @@ Embed AMD-optimized AI into end-user applications.
 
 | Skill | What it does |
 | --- | --- |
-| `local-ai-app-integration` | Add private, on-device AI to apps that use OpenAI, Anthropic, or Ollama APIs by bundling Embeddable Lemonade as a subprocess. |
-| `local-ai-use` | Apply a Lemonade-first strategy so agents default to local image generation, text-to-speech, and speech-to-text to reduce token/cost usage before any cloud fallback. |
+| `local-ai-app-integration` | Integrate local AI into cloud LLM apps for offline support, better privacy, and lower API costs. |
+| `local-ai-use` | Route image generation, text-to-speech, and speech-to-text through a local AI Server to reduce token/cost usage. |
 
 ### Cross-stack porting
 
@@ -151,11 +151,11 @@ scripts/            # Tooling for publishing and regenerating manifests
 
 ## Installation
 
-Detailed install steps for each supported agent will land alongside the first published skills. The general flow:
+AMD Skills are compatible with Cursor, Claude Code, OpenAI Codex, and Gemini CLI. The general flow:
 
 ### Cursor
 
-Install the AMD plugin from this repository through the Cursor plugin flow. The repo ships a `.cursor-plugin/plugin.json` and an `.mcp.json` so skills are discoverable as soon as the plugin is enabled.
+Install the AMD plugin from this repository through the Cursor plugin flow. The repo ships a `.cursor-plugin/plugin.json` so skills are discoverable as soon as the plugin is enabled.
 
 ### Claude Code
 
@@ -172,7 +172,7 @@ Copy or symlink the desired folders from `skills/` into one of Codex's standard 
 
 ### Gemini CLI
 
-A `gemini-extension.json` is provided so the repo can be installed as a Gemini CLI extension:
+A `gemini-extension.json` will be provided so the repo can be installed as a Gemini CLI extension:
 
 ```bash
 gemini extensions install https://github.com/amd/skills.git --consent
@@ -201,12 +201,16 @@ Best for cross-cutting skills that do not have a natural product home.
 1. Copy an existing skill folder under `skills/` as a starting point and rename it.
 2. Update the `SKILL.md` frontmatter so the `name` and `description` clearly explain *what* the skill does and *when* an agent should reach for it.
 3. Add the supporting scripts, templates, and reference docs your instructions point to. Keep skills focused: one well-scoped task per skill is better than one mega-skill.
-4. Register the skill in `.claude-plugin/marketplace.json` with a human-readable description.
-5. Validate the skill locally before pushing:
+4. Register the skill in `.claude-plugin/marketplace.json` with a human-readable description (the marketplace description is for humans browsing the catalog; the `SKILL.md` description is what the agent uses for routing).
+5. Regenerate the Cursor manifest so it tracks the new skill:
    ```bash
-   ./scripts/check.sh   # validates every SKILL.md
+   ./scripts/publish.sh   # writes .cursor-plugin/plugin.json
    ```
-6. Open a pull request. The `validate` GitHub Actions workflow runs `./scripts/check.sh` and must pass before merge. See [AUTHORING.md](AUTHORING.md#validating-locally) for the full set of enforced rules.
+6. Validate the skill locally before pushing:
+   ```bash
+   ./scripts/check.sh   # validates every SKILL.md and that manifests are in sync
+   ```
+7. Open a pull request. The `validate` GitHub Actions workflow runs `./scripts/check.sh` and must pass before merge. See [AUTHORING.md](AUTHORING.md#validating-locally) for the full set of enforced rules.
 
 ### Path B: Skills authored in a product repository
 

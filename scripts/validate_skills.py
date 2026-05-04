@@ -14,6 +14,10 @@ Enforces the rules documented in AUTHORING.md:
   - `description` is a non-empty string <=1024 chars
   - SKILL.md body is <=500 lines
 
+Also validates that `.claude-plugin/marketplace.json` is in sync with the
+skills on disk: every skill must have a marketplace entry, and every
+marketplace entry must point at an existing skill.
+
 Run from the repo root:
 
     ./scripts/check.sh                          # used by CI; thin wrapper
@@ -26,6 +30,7 @@ Exits non-zero if any skill fails validation.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from dataclasses import dataclass, field
@@ -35,6 +40,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SKILLS_DIR = REPO_ROOT / "skills"
+CLAUDE_MARKETPLACE = REPO_ROOT / ".claude-plugin" / "marketplace.json"
 
 # Limits from AUTHORING.md and the standardized Agent Skills format.
 MAX_NAME_LEN = 64
@@ -153,6 +159,74 @@ def discover_skills(root: Path) -> list[Path]:
     )
 
 
+def validate_claude_marketplace(skill_dirs: list[Path]) -> list[str]:
+    """Return error strings if marketplace entries don't match skills/ on disk.
+
+    The marketplace's human-readable `description` is intentionally allowed
+    to differ from the SKILL.md description (per AUTHORING.md), so this only
+    enforces that names and source paths line up.
+    """
+    if not CLAUDE_MARKETPLACE.exists():
+        return [
+            f"Missing {CLAUDE_MARKETPLACE.relative_to(REPO_ROOT)}; expected one "
+            "entry per skill."
+        ]
+
+    try:
+        data = json.loads(CLAUDE_MARKETPLACE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"{CLAUDE_MARKETPLACE.relative_to(REPO_ROOT)}: invalid JSON: {exc}"]
+
+    plugins = data.get("plugins") if isinstance(data, dict) else None
+    if not isinstance(plugins, list):
+        return [
+            f"{CLAUDE_MARKETPLACE.relative_to(REPO_ROOT)}: top-level `plugins` "
+            "array is missing."
+        ]
+
+    errors: list[str] = []
+    skill_names = {p.name for p in skill_dirs}
+    listed_names: set[str] = set()
+
+    for idx, entry in enumerate(plugins):
+        if not isinstance(entry, dict):
+            errors.append(f"plugins[{idx}] must be an object.")
+            continue
+        name = entry.get("name")
+        source = entry.get("source")
+        description = entry.get("description")
+
+        if not isinstance(name, str) or not name:
+            errors.append(f"plugins[{idx}] is missing a non-empty `name`.")
+            continue
+        listed_names.add(name)
+
+        if name not in skill_names:
+            errors.append(
+                f"plugins[{idx}] (`{name}`) has no matching directory under skills/."
+            )
+            continue
+
+        expected_source = f"./skills/{name}"
+        if source != expected_source:
+            errors.append(
+                f"plugins[{idx}] (`{name}`): `source` must be `{expected_source}`, "
+                f"got `{source}`."
+            )
+        if not isinstance(description, str) or not description.strip():
+            errors.append(
+                f"plugins[{idx}] (`{name}`) is missing a non-empty `description`."
+            )
+
+    for missing in sorted(skill_names - listed_names):
+        errors.append(
+            f"skills/{missing} has no entry in "
+            f"{CLAUDE_MARKETPLACE.relative_to(REPO_ROOT)}."
+        )
+
+    return errors
+
+
 def run(skills_dir: Path) -> int:
     skills = discover_skills(skills_dir)
     if not skills:
@@ -168,6 +242,13 @@ def run(skills_dir: Path) -> int:
         for err in report.errors:
             print(f"        {err}")
         total_errors += len(report.errors)
+
+    marketplace_errors = validate_claude_marketplace(skills)
+    marketplace_status = "OK  " if not marketplace_errors else "FAIL"
+    print(f"\n[{marketplace_status}] .claude-plugin/marketplace.json")
+    for err in marketplace_errors:
+        print(f"        {err}")
+    total_errors += len(marketplace_errors)
 
     print(f"\nSummary: {total_errors} error(s) across {len(skills)} skill(s)")
     return 0 if total_errors == 0 else 1

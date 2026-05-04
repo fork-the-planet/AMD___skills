@@ -8,12 +8,14 @@ on:
       - "scripts/**"
       - "**/SKILL.md"
       - "skills/**"
+      - ".claude-plugin/**"
+      - ".cursor-plugin/**"
       - ".github/workflows/validate.yml"
   workflow_dispatch:
 
 jobs:
   validate:
-    name: Validate skills
+    name: Validate skills and plugin manifests
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -22,5 +24,5 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
 
-      - name: Validate skills (size + standardized format)
+      - name: Validate skills and generated manifests
         run: ./scripts/check.sh

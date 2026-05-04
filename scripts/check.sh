@@ -1,17 +1,11 @@
 #!/usr/bin/env bash
-# Validate every SKILL.md in the catalog.
+# Validate every SKILL.md and that generated plugin manifests are up to date.
 #
 # Usage:
-#   ./scripts/check.sh              Validate every skill.
+#   ./scripts/check.sh              Validate every skill and check manifests.
 #   ./scripts/check.sh -h|--help    Print this help.
 #
 # Requires `uv` (https://github.com/astral-sh/uv).
-#
-# Note: this repo does not publish anything yet. When we add catalog
-# manifests (.cursor-plugin/plugin.json, .claude-plugin/marketplace.json,
-# .mcp.json, etc.) we'll add a separate scripts/publish.sh for generation
-# and check.sh will gain a `--check` mode that diffs the regenerated
-# artifacts against the committed copy.
 
 set -euo pipefail
 
@@ -25,6 +19,7 @@ usage() {
 case "${1:-}" in
   "")
     uv run scripts/validate_skills.py
+    uv run scripts/generate_cursor_plugin.py --check
     ;;
   -h|--help)
     usage

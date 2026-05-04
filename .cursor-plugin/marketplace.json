@@ -1,0 +1,18 @@
+{
+  "name": "amd-skills",
+  "owner": {
+    "name": "AMD"
+  },
+  "metadata": {
+    "description": "Agent Skills for AMD-optimized workflows.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "amd-skills",
+      "source": ".",
+      "skills": "skills",
+      "description": "Agent Skills for AMD-optimized workflows."
+    }
+  ]
+}
