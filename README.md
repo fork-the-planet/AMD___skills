@@ -65,6 +65,7 @@ Embed AMD-optimized AI into end-user applications.
 | Skill | What it does |
 | --- | --- |
 | `local-ai-app-integration` | Add private, on-device AI to apps that use OpenAI, Anthropic, or Ollama APIs by bundling Embeddable Lemonade as a subprocess. |
+| `local-ai-use` | Apply a Lemonade-first strategy so agents default to local image generation, text-to-speech, and speech-to-text to reduce token/cost usage before any cloud fallback. |
 
 ### Cross-stack porting
 
@@ -226,7 +227,7 @@ See [AUTHORING.md](AUTHORING.md) for the full authoring guide, including when a 
 
 ## Status
 
-This repository is in its early days. The first in-repo skill, `skills/local-ai-app-integration/`, is available now and seeds the **Application integration** focus area. The Hardware-native, Cross-stack porting, and Profiling and delivery focus areas are being built out incrementally alongside manifests and CI. Expect rapid iteration. File an issue if there is a workflow you want covered, or open a PR with a skill you have been wanting to share.
+This repository is in its early days. In-repo skills include `skills/local-ai-app-integration/` and `skills/local-ai-use/`, seeding the **Application integration** focus area. The Hardware-native, Cross-stack porting, and Profiling and delivery focus areas are being built out incrementally alongside manifests and CI. Expect rapid iteration. File an issue if there is a workflow you want covered, or open a PR with a skill you have been wanting to share.
 
 ## License
 
