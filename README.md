@@ -1,8 +1,8 @@
 # AMD Skills
 
-AMD Skills package the knowledge, scripts, and conventions for working with AMD hardware and software — ROCm, HIP, MIGraphX, ROCm-aware PyTorch and JAX, Instinct GPUs, Ryzen AI, and the broader AMD developer stack — and deliver them in a form AI coding agents can load on demand.
+AMD Skills package the knowledge, scripts, and conventions for working with AMD hardware and software — ROCm, HIP, MIGraphX, ROCm-aware PyTorch and JAX, Instinct GPUs, Ryzen AI, Lemonade, and the broader AMD developer stack — and deliver them in a form AI coding agents can load on demand.
 
-When a developer asks an agent to "set up ROCm in this container," "port this CUDA kernel to HIP," or "tune this model for an MI300X," the agent pulls in an AMD-authored skill instead of guessing.
+When a developer asks an agent to "set up ROCm in this container," "port this CUDA kernel to HIP," "tune this model for an MI300X," or "integrate local AI into my app," the agent pulls in an AMD-authored skill instead of guessing.
 
 Skills in this repository follow the standardized [Agent Skills](https://github.com/anthropics/skills) format and are designed to interoperate with the major coding agents — Cursor, Claude Code, OpenAI Codex, and Gemini CLI.
 
@@ -28,7 +28,7 @@ Skills earn their keep on repeated, opinionated workflows — exactly where the 
 
 ## The catalog
 
-The initial catalog is organized into three focus areas.
+The initial catalog is organized into four focus areas.
 
 ### Hardware-native skills
 
@@ -42,7 +42,15 @@ Diagnose, configure, and tune AMD silicon directly.
 | `rocm-container-picker` | Map a workload to a known-good `rocm/*` container image. |
 | `ryzen-ai-deploy` | Prepare, quantize, and deploy models to Ryzen AI NPUs across the ONNX, PyTorch, and hybrid CPU/NPU/iGPU paths. |
 
-### Cross-stack porting and integration
+### Application integration
+
+Embed AMD-optimized AI into end-user applications.
+
+| Skill | What it does |
+| --- | --- |
+| `local-ai-app-integration` | Add private, on-device AI to apps that use OpenAI, Anthropic, or Ollama APIs by bundling Embeddable Lemonade as a subprocess. |
+
+### Cross-stack porting
 
 Bring existing workloads onto AMD.
 
@@ -84,12 +92,11 @@ So skills here are **federated**: each skill is owned and versioned by the team 
                               your AI coding agent
                                        ▲
                                        │  resolves pointers to
-       ┌───────────────────────────────┼────────────────────────────────┐
-       │                               │                                │
-   ROCm/ROCm                       ROCm/HIP                       Ryzen AI repo
-   rocm-doctor/                    cuda-to-hip/                   ryzen-ai-deploy/
-   gfx-target-chooser/             triton-amd-port/               ...
-   ...                             ...
+       ┌───────────────┬───────────────┼───────────────┬────────────────┐
+       │               │               │               │                │
+   ROCm/ROCm       ROCm/HIP        Ryzen AI repo   lemonade-sdk    ...more
+   rocm-doctor/    cuda-to-hip/    ryzen-ai-deploy/  local-ai-app-   product
+   gfx-target-...  triton-amd-...  ...               integration/    repos
 ```
 
 Concretely:
@@ -97,6 +104,7 @@ Concretely:
 - The `cuda-to-hip` skill lives with the HIP project.
 - `rocm-doctor` lives with the ROCm release tree.
 - `ryzen-ai-deploy` ships with Ryzen AI.
+- `local-ai-app-integration` is incubating in this repo today and will graduate to `lemonade-sdk/lemonade` so it ships and versions with the `lemond` binary it drives.
 
 Each skill stays close to the engineers who ship the underlying product, the CI that validates it, and the release tag that pins it.
 
@@ -157,6 +165,7 @@ gemini extensions install https://github.com/amd/skills.git --consent
 
 Once a skill is installed, reference it in plain language while talking to your agent. For example:
 
+- "Integrate local AI capabilities into my app with Embeddable Lemonade."
 - "Use the `pytorch-rocm-setup` skill to get PyTorch running on this MI300X node."
 - "Use the `cuda-to-hip` skill to convert these CUDA kernels and flag anything that needs manual review."
 - "Use the `migraphx-deploy` skill to compile this ONNX model for `gfx942` and benchmark it."
@@ -199,7 +208,7 @@ Best for skills that should ship and version with a product (HIP, MIGraphX, Ryze
 
 ## Status
 
-This repository is in its early days. Skills, manifests, and CI are being built out incrementally; expect rapid iteration. File an issue if there is a workflow you want covered, or open a PR with a skill you have been wanting to share.
+This repository is in its early days. The first in-repo skill, `skills/local-ai-app-integration/`, is available now and seeds the **Application integration** focus area. The Hardware-native, Cross-stack porting, and Profiling and delivery focus areas are being built out incrementally alongside manifests and CI. Expect rapid iteration. File an issue if there is a workflow you want covered, or open a PR with a skill you have been wanting to share.
 
 ## License
 
