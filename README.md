@@ -110,7 +110,7 @@ So skills here are **federated**: each skill is owned and versioned by the team 
        ┌───────────────┬───────────────┼───────────────┬────────────────┐
        │               │               │               │                │
    ROCm/ROCm       ROCm/HIP        Ryzen AI repo   lemonade-sdk    ...more
-   rocm-doctor/    cuda-to-hip/    ryzen-ai-deploy/  local-ai-app-   product
+  rocm-doctor/    cuda-to-hip/    ryzen-ai-tools/   local-ai-app-   product
    gfx-target-...  triton-amd-...  ...               integration/    repos
 ```
 
@@ -126,8 +126,10 @@ This repo also acts as an **incubator**: a skill can start its life under `skill
 
 ### What this means if you contribute
 
-- **In-repo skills** (Path A below) are best for cross-cutting workflows that do not have a natural product home.
-- **Product-repo skills** (Path B below) are best for skills that should live and version with a specific product. You add the skill folder to your product repo and open a small PR here that registers it in `catalog/` with a pinned tag. CI validates the linked skill against the same rules as in-repo skills, and the central plugin manifests surface it through the same one install.
+- **In-repo skills** (Path A) are best for cross-cutting workflows that do not have a natural product home.
+- **Product-repo skills** (Path B) are best for skills that should live and version with a specific product. You add the skill folder to your product repo and open a small PR here that registers it in `catalog/` with a pinned tag. CI validates the linked skill against the same rules as in-repo skills, and the central plugin manifests surface it through the same one install.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the step-by-step contribution flow for each path.
 
 ### Repository layout
 
@@ -181,42 +183,12 @@ The agent loads the matching `SKILL.md` and any helper scripts, then carries out
 
 ## Contributing a skill
 
-We welcome contributions from AMD engineers, and selected partners. There are two contribution paths, matching how the catalog is organized.
+We welcome contributions from AMD engineers and selected partners. There are two paths, matching how the catalog is organized:
 
-### Path A: Skills authored in this repository
+- **Path A — In-repo skills.** Authored directly under `skills/` in this repository. Best for cross-cutting workflows that do not have a natural product home.
+- **Path B — Product-repo skills.** Authored in a product repository and registered here through `catalog/` with a pinned tag. Best for skills that should ship and version with a specific product (HIP, ROCm, Ryzen AI, Lemonade, etc.).
 
-Best for cross-cutting skills that do not have a natural product home.
-
-1. Copy an existing skill folder under `skills/` as a starting point and rename it.
-2. Update the `SKILL.md` frontmatter so the `name` and `description` clearly explain *what* the skill does and *when* an agent should reach for it.
-3. Add the supporting scripts, templates, and reference docs your instructions point to. Keep skills focused: one well-scoped task per skill is better than one mega-skill.
-4. Register the skill in `.claude-plugin/marketplace.json` with a human-readable description (the marketplace description is for humans browsing the catalog; the `SKILL.md` description is what the agent uses for routing).
-5. Regenerate the Cursor manifest so it tracks the new skill:
-   ```bash
-   ./scripts/publish.sh   # writes .cursor-plugin/plugin.json
-   ```
-6. Validate the skill locally before pushing:
-   ```bash
-   ./scripts/check.sh   # validates every SKILL.md and that manifests are in sync
-   ```
-7. Open a pull request. The `validate` GitHub Actions workflow runs `./scripts/check.sh` and must pass before merge. See [AUTHORING.md](AUTHORING.md#validating-locally) for the full set of enforced rules.
-
-### Path B: Skills authored in a product repository
-
-Best for skills that should ship and version with a product (HIP, MIGraphX, Ryzen AI, vLLM-AMD, etc.).
-
-1. Add the skill folder to your product repository; a common location is `.agents/skills/<skill-name>/`.
-2. Open a pull request here that adds an entry to `catalog/` pointing at the skill's location and pinning a tag.
-3. CI will validate the linked skill against the same rules as in-repo skills, and the central plugin manifests will surface it through one install.
-
-### Writing tips
-
-See [AUTHORING.md](AUTHORING.md) for the full authoring guide, including when a task is a good fit for a skill, how to write a description that routes correctly, and the conventions every AMD skill should follow. The essentials:
-
-- Optimize the `description` for *agent routing*, not marketing copy. Describe the user's goal, not how the skill works internally.
-- Be explicit about prerequisites: ROCm version, kernel, GPU architecture, container image.
-- Prefer scripts and runnable commands over prose where possible.
-- Call out known pitfalls: driver mismatches, unsupported architectures, and environment variables that silently change behavior.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for step-by-step instructions, the full authoring guide, and the rules CI enforces on every pull request.
 
 ## Status
 
