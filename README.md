@@ -22,6 +22,12 @@ AMD Skills provide agents with knowledge, scripts, and conventions for working w
 
 Skills in this repository follow the standardized [Agent Skills](https://github.com/anthropics/skills) format and are designed to interoperate with the major coding agents like Cursor, Claude Code, OpenAI Codex, and Gemini CLI.
 
+## Installation
+
+Zero setup is needed on `Claude` and `Cursor` (natively integrated). Simply ask your agent something like "Use AMD Skills to integrate local AI into my app".
+
+For integration with other agents, please refer to the [manual-installation](#manual-installation) section.
+
 ## What is a skill?
 
 A skill is a self-contained folder that bundles everything an agent needs to perform a focused task: instructions, helper scripts, prompts, templates, and references. At its core is a `SKILL.md` file with YAML frontmatter, a `name`, and a short `description` that tells the agent *when* the skill should activate, followed by the guidance the agent reads while the skill is in use.
@@ -57,7 +63,7 @@ Embed AMD-optimized AI into end-user applications.
 
 ### Hardware-native skills
 
-Diagnose, configure, and tune AMD silicon directly.
+Diagnose, configure, and tune AMD devices directly.
 
 | Skill | What it does |
 | --- | --- |
@@ -143,7 +149,7 @@ catalog/            # Manifest pointers to skills that live in product repositor
 scripts/            # Tooling for publishing and regenerating manifests
 ```
 
-## Installation
+## Manual Installation
 
 AMD Skills are compatible with Cursor, Claude Code, OpenAI Codex, and Gemini CLI. The general flow:
 
