@@ -26,9 +26,9 @@ Skills in this repository follow the standardized [Agent Skills](https://github.
 
 AMD Skills is built directly into Claude and Cursor. **No install. No setup**
 
-Just ask: `"Use AMD Skills to integrate local AI into my app"`.
+Just ask something like: `"Use AMD Skills to integrate local AI into my app"`.
 
-For integration with other agents, please refer to the [manual-installation](#manual-installation) section.
+> For integration with other agents, please refer to the [manual-installation](#manual-installation) section.
 
 ## What is a skill?
 
@@ -70,8 +70,7 @@ Diagnose, configure, and tune AMD devices directly.
 | Skill | What it does |
 | --- | --- |
 | `rocm-doctor` | Detect driver / kernel / ROCm / framework mismatches and propose fixes. |
-| `mi300x-tuner` | Opinionated training and inference tuning for MI300X, including TunableOp, FSDP, and FlashAttention. |
-| `rocm-container-picker` | Map a workload to a known-good `rocm/*` container image. |
+| `mi300x-tuner` | Opinionated inference tuning for MI300X, including TunableOp, FSDP, and FlashAttention. |
 | `gfx-target-chooser` | Pick the right `gfx942` / `gfx90a` / `gfx1100` target and matching compiler flags. |
 
 
@@ -82,7 +81,6 @@ Bring existing workloads onto AMD.
 | Skill | What it does |
 | --- | --- |
 | `cuda-to-hip` | Port CUDA kernels with `hipify` and flag anything that needs manual review. |
-| `triton-amd-port` | Port Triton kernels to the AMD backend with parity and performance checks. |
 | `vllm-rocm` | Stand up vLLM on AMD with the right environment variables and model configurations. |
 | `pytorch-rocm-setup` | Get a known-good PyTorch + ROCm stack running on a target node, end to end. |
 
