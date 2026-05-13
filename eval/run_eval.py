@@ -15,7 +15,10 @@ import subprocess
 import sys
 import time
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from pathlib import Path
+
+DEFAULT_RUNS_DIR = Path(__file__).resolve().parent / "runs"
 
 
 @dataclass
@@ -165,8 +168,15 @@ def main() -> None:
         default="high",
         help="Reasoning effort level for the session. Default: high.",
     )
-    parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON instead of human-readable output.")
-    parser.add_argument("--output", help="Also write the result JSON to this file.")
+    parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON to stdout instead of the human-readable summary.")
+    parser.add_argument(
+        "--output",
+        help=(
+            "Path to write the result JSON file. Defaults to "
+            "eval/runs/<timestamp>-<model>-<effort>.json. "
+            "Pass an empty string ('') to skip writing a file."
+        ),
+    )
     args, extra_args = parser.parse_known_args()
     extra_args = [a for a in extra_args if a != "--"]
     prompt = read_prompt(args)
@@ -174,13 +184,30 @@ def main() -> None:
     elapsed, payload = run_claude(prompt, args.model, args.effort, extra_args)
     result = build_result(prompt, args.model, args.effort, elapsed, payload)
 
-    if args.output:
-        Path(args.output).write_text(json.dumps(asdict(result), indent=2), encoding="utf-8")
+    serialized = json.dumps(asdict(result), indent=2)
+
+    output_path: Path | None
+    if args.output is None:
+        DEFAULT_RUNS_DIR.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        filename = f"{stamp}-{args.model}-{args.effort}.json"
+        output_path = DEFAULT_RUNS_DIR / filename
+    elif args.output == "":
+        output_path = None
+    else:
+        output_path = Path(args.output)
+        if output_path.parent and not output_path.parent.exists():
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if output_path is not None:
+        output_path.write_text(serialized, encoding="utf-8")
 
     if args.json:
-        print(json.dumps(asdict(result), indent=2))
+        print(serialized)
     else:
         print_human(result)
+        if output_path is not None:
+            print(f"Saved JSON to: {output_path}")
 
 
 if __name__ == "__main__":
