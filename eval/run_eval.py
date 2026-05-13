@@ -9,16 +9,21 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
+from collections.abc import Iterator
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_RUNS_DIR = Path(__file__).resolve().parent / "runs"
+SKILLS_DIR = REPO_ROOT / "skills"
 
 
 @dataclass
@@ -26,6 +31,7 @@ class EvalResult:
     prompt: str
     model: str | None
     effort: str | None
+    skill: str | None
     wall_time_s: float
     duration_ms: int | None
     duration_api_ms: int | None
@@ -52,32 +58,79 @@ def read_prompt(args: argparse.Namespace) -> str:
     return args.prompt
 
 
+def list_available_skills() -> list[str]:
+    if not SKILLS_DIR.is_dir():
+        return []
+    return sorted(
+        p.name for p in SKILLS_DIR.iterdir() if p.is_dir() and (p / "SKILL.md").is_file()
+    )
+
+
+@contextlib.contextmanager
+def staged_skill_dir(skill: str | None) -> Iterator[Path | None]:
+    """Stage a temp directory of the form ``<tmp>/.claude/skills/<skill>/...``
+    so Claude Code's normal skill discovery picks it up via ``--add-dir``.
+
+    Per the Claude Code docs:
+
+        The `--add-dir` flag grants file access rather than configuration
+        discovery, but skills are an exception: `.claude/skills/` within
+        an added directory is loaded automatically.
+
+    This registers the skill (name + description go into the skill listing)
+    without injecting its full body into the prompt — Claude only loads the
+    body when it decides to use the skill, or when invoked as ``/<skill>``.
+    """
+    if not skill:
+        yield None
+        return
+
+    skill_src = SKILLS_DIR / skill
+    if not (skill_src / "SKILL.md").is_file():
+        available = list_available_skills()
+        hint = f" Available skills: {', '.join(available)}." if available else ""
+        sys.exit(f"error: skill '{skill}' not found at {skill_src / 'SKILL.md'}.{hint}")
+
+    tmp_root = Path(tempfile.mkdtemp(prefix="eval-skill-"))
+    try:
+        dest = tmp_root / ".claude" / "skills" / skill
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(skill_src, dest)
+        yield tmp_root
+    finally:
+        shutil.rmtree(tmp_root, ignore_errors=True)
+
+
 def run_claude(
     prompt: str,
     model: str | None,
     effort: str | None,
+    skill: str | None,
     extra_args: list[str],
 ) -> tuple[float, dict]:
     claude_bin = shutil.which("claude")
     if not claude_bin:
         sys.exit("error: 'claude' CLI not found on PATH")
 
-    cmd = [claude_bin, "-p", prompt, "--output-format", "json"]
-    if model:
-        cmd += ["--model", model]
-    if effort:
-        cmd += ["--effort", effort]
-    cmd += extra_args
+    with staged_skill_dir(skill) as skill_root:
+        cmd = [claude_bin, "-p", prompt, "--output-format", "json"]
+        if model:
+            cmd += ["--model", model]
+        if effort:
+            cmd += ["--effort", effort]
+        if skill_root is not None:
+            cmd += ["--add-dir", str(skill_root)]
+        cmd += extra_args
 
-    start = time.perf_counter()
-    proc = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        stdin=subprocess.DEVNULL,
-    )
-    elapsed = time.perf_counter() - start
+        start = time.perf_counter()
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            stdin=subprocess.DEVNULL,
+        )
+        elapsed = time.perf_counter() - start
 
     stdout = (proc.stdout or "").strip()
     try:
@@ -99,6 +152,7 @@ def build_result(
     prompt: str,
     model: str | None,
     effort: str | None,
+    skill: str | None,
     elapsed_s: float,
     payload: dict,
 ) -> EvalResult:
@@ -112,6 +166,7 @@ def build_result(
         prompt=prompt,
         model=model,
         effort=effort,
+        skill=skill,
         wall_time_s=round(elapsed_s, 3),
         duration_ms=payload.get("duration_ms"),
         duration_api_ms=payload.get("duration_api_ms"),
@@ -135,6 +190,7 @@ def print_human(result: EvalResult) -> None:
     print(f"Prompt:           {result.prompt[:120]}{'...' if len(result.prompt) > 120 else ''}")
     print(f"Model:            {result.model or '(default)'}")
     print(f"Effort:           {result.effort or '(default)'}")
+    print(f"Skill:            {result.skill or '(none)'}")
     print(f"Wall time:        {result.wall_time_s:.3f} s")
     if result.duration_ms is not None:
         print(f"Reported time:    {result.duration_ms / 1000:.3f} s (api: {(result.duration_api_ms or 0) / 1000:.3f} s)")
@@ -168,6 +224,20 @@ def main() -> None:
         default="high",
         help="Reasoning effort level for the session. Default: high.",
     )
+    parser.add_argument(
+        "--skill",
+        default=None,
+        help=(
+            "Name of a skill under skills/ to expose to the model "
+            "(its SKILL.md is appended to the system prompt). "
+            "Omit to run with no skill. Use --list-skills to see options."
+        ),
+    )
+    parser.add_argument(
+        "--list-skills",
+        action="store_true",
+        help="Print the names of available skills under skills/ and exit.",
+    )
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON to stdout instead of the human-readable summary.")
     parser.add_argument(
         "--output",
@@ -179,10 +249,20 @@ def main() -> None:
     )
     args, extra_args = parser.parse_known_args()
     extra_args = [a for a in extra_args if a != "--"]
+
+    if args.list_skills:
+        skills = list_available_skills()
+        if not skills:
+            print("(no skills found under skills/)")
+        else:
+            for name in skills:
+                print(name)
+        return
+
     prompt = read_prompt(args)
 
-    elapsed, payload = run_claude(prompt, args.model, args.effort, extra_args)
-    result = build_result(prompt, args.model, args.effort, elapsed, payload)
+    elapsed, payload = run_claude(prompt, args.model, args.effort, args.skill, extra_args)
+    result = build_result(prompt, args.model, args.effort, args.skill, elapsed, payload)
 
     serialized = json.dumps(asdict(result), indent=2)
 
@@ -190,7 +270,8 @@ def main() -> None:
     if args.output is None:
         DEFAULT_RUNS_DIR.mkdir(parents=True, exist_ok=True)
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        filename = f"{stamp}-{args.model}-{args.effort}.json"
+        skill_part = f"-{args.skill}" if args.skill else ""
+        filename = f"{stamp}-{args.model}-{args.effort}{skill_part}.json"
         output_path = DEFAULT_RUNS_DIR / filename
     elif args.output == "":
         output_path = None
