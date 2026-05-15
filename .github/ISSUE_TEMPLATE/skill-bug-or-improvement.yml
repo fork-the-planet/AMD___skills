@@ -12,12 +12,15 @@ body:
 
         Fill out the short fields below, then describe the issue in detail at the end.
 
-  - type: input
+  - type: dropdown
     id: skill_name
     attributes:
       label: Which skill?
-      description: Name of the existing skill (e.g. `local-ai-use`, `local-ai-app-integration`). One issue per skill, please.
-      placeholder: e.g. local-ai-use
+      description: Pick the existing skill this issue is about. One issue per skill, please. If your skill isn't listed (e.g. it was just added), pick **Other** and name it in the details below.
+      options:
+        - local-ai-app-integration
+        - local-ai-use
+        - Other (name it in the details below)
     validations:
       required: true
 
