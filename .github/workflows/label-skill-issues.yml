@@ -83,7 +83,7 @@ jobs:
 
             if (templateLabels.includes("skill-issue")) {
               await applyGroup({
-                section: "What kind of issue is this\\?",
+                section: "Kind",
                 groupLabels: ["bug", "improvement", "scope"],
                 pick: (answer) => {
                   if (/^Improvement\b/i.test(answer)) return "improvement";
