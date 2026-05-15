@@ -44,36 +44,22 @@ Strix Halo (gfx1151) requires Linux KFD fixes that update internal queue
 limits and memory checks. Without them, GPU compute workloads may fail to
 initialize or behave unpredictably regardless of how you set GTT.
 
-Minimum kernel versions (per the source AMD doc):
+The exact minimum kernel versions per distribution and the ROCm release
+compatibility matrix change every few months as backports land. Both live
+authoritatively at:
 
-| Distribution | Minimum kernel |
-|---|---|
-| Ubuntu 24.04 HWE | `6.17.0-19.19~24.04.2` |
-| Ubuntu 24.04 OEM | `6.14.0-1018` |
-| Ubuntu 26.04 (generic) | shipped |
-| Fedora 43 | shipped |
-| Arch Linux 2026.02.01 | shipped |
-| All other distributions | mainline `6.18.4` or newer |
+> [AMD RDNA3.5 system optimization > Operating system support](https://rocm.docs.amd.com/en/latest/how-to/system-optimization/rdna3-5.html#operating-system-support)
 
-ROCm release compatibility (from the AMD doc):
+Always check that page rather than trusting a copy here. `detect_platform.py`
+hardcodes a single conservative floor (mainline 6.18.4 / Ubuntu HWE 6.17.0 /
+Ubuntu OEM 6.14.0) for its programmatic gate; if the AMD page diverges from
+that, prefer the AMD page and update the script's `LINUX_KERNEL_MIN_*`
+constants.
 
-| ROCm release | Ubuntu 24.04 HWE / OEM / Ubuntu 26.04 | Other distros >= 6.18.4 | Other distros < 6.18.4 |
-|---|---|---|---|
-| 7.11.0 / 7.12.0 | Stable | Stable | Unstable |
-| 7.10.0 / 7.9.0 | Unsupported | Unsupported | Unstable |
-| 7.2.1 | Stable | Stable | Unstable |
-| 7.2.0 | Stable | Stable | Unsupported |
-| 7.1.x | Unsupported | Unsupported | Unstable |
-| 6.4.x | Unsupported | Unsupported | Unstable |
-
-`detect_platform.py` only enforces the **mainline 6.18.4 / Ubuntu HWE
-6.17.0 / Ubuntu OEM 6.14.0** floor. Anything below that is reported as
-`kernel_supported: false` and the skill stops.
-
-For RDNA3 / RDNA2 APUs (gfx1103, gfx1036, etc.) the kernel requirements
-are looser — any reasonably recent (6.x) kernel works for the GTT knob,
-because the new KFD fixes are Strix Halo specific. The detection script
-does not enforce a floor for those generations.
+For RDNA3 / RDNA2 APUs (gfx1103, gfx1036, etc.) the kernel requirements are
+looser — any reasonably recent (6.x) kernel works for the GTT knob, because
+the new KFD fixes are Strix Halo specific. The detection script does not
+enforce a floor for those generations.
 
 ---
 

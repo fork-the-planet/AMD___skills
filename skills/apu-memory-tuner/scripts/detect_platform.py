@@ -54,10 +54,12 @@ GFX_TO_GENERATION: dict[str, str] = {
     "gfx1033": "rdna2",
 }
 
-# Kernel version minimums copied from the source AMD doc:
-# https://rocm.docs.amd.com/en/latest/how-to/system-optimization/rdna3-5.html
-# Strix Halo (gfx1151) requires the KFD fixes; without them queue creation
-# and memory checks misbehave. Mainline 6.18.4 is the floor for non-Ubuntu.
+# Kernel version floors for the Linux gate. The authoritative, up-to-date
+# matrix (per distribution + per ROCm release) lives at:
+#   https://rocm.docs.amd.com/en/latest/how-to/system-optimization/rdna3-5.html
+# Always cross-check that page before bumping these constants. Strix Halo
+# (gfx1151) requires the KFD fixes referenced there; without them queue
+# creation and memory checks misbehave.
 LINUX_KERNEL_MIN_MAINLINE = (6, 18, 4)
 LINUX_KERNEL_MIN_UBUNTU_HWE = (6, 17, 0)
 LINUX_KERNEL_MIN_UBUNTU_OEM = (6, 14, 0)

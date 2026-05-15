@@ -178,5 +178,6 @@ hasn't validated it yet — say so out loud rather than declaring success.
 
 ## Reference
 
-For the full glossary, kernel-version matrix, per-OEM BIOS notes, profile
-math, and troubleshooting, see [reference.md](reference.md).
+For the full glossary, the link to AMD's authoritative kernel-version /
+ROCm-compatibility matrix, per-OEM BIOS notes, profile math, and
+troubleshooting, see [reference.md](reference.md).
