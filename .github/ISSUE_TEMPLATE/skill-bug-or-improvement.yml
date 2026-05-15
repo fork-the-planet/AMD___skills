@@ -7,10 +7,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping us improve an existing skill! Use this form for **existing** skills only.
+        Thanks for helping us improve an existing skill!
         If you want to propose a brand-new skill, use the *Skill proposal* template instead.
-
-        Fill out the short fields below, then describe the issue in detail at the end.
 
   - type: dropdown
     id: skill_name
@@ -29,7 +27,7 @@ body:
     attributes:
       label: What kind of issue is this?
       description: |
-        Pick the option that best matches what you're reporting. The fields below are tailored to each kind. A matching label (`bug`, `improvement`, `scope`) will be applied automatically when the issue is created.
+        Pick the option that best matches what you're reporting. A matching label (`bug`, `improvement`, `scope`) will be applied automatically when the issue is created.
           - **Improvement** — the skill works, but its strategy/instructions should change.
           - **Bug** — the skill is broken, gives wrong output, or fails to fire when it should.
           - **Scope** — the skill's scope should grow, shrink, or shift.
@@ -43,46 +41,24 @@ body:
       required: true
 
   - type: textarea
-    id: improvement_details
+    id: details
     attributes:
-      label: "Improvement: how should the skill's strategy change?"
-      description: Only fill in if you picked **Improvement**. Suggest concretely how the skill's strategy, instructions, or behavior should change, and why.
-      placeholder: |
-        e.g. The skill currently always uses SD-Turbo at 512x512. It should pick a larger size when
-        the user asks for a "wallpaper" or "poster" because the current default looks pixelated.
-
-  - type: textarea
-    id: bug_details
-    attributes:
-      label: "Bug: what is broken, and how do we reproduce it?"
+      label: Describe the issue
       description: |
-        Only fill in if you picked **Bug**. Cover:
-          - What you asked the agent to do.
-          - What you expected the skill to do.
-          - What actually happened (full agent output / error message helps).
-          - Minimal reproduction steps.
+        Fill in the section that matches what you picked above. Delete the rest.
+
+        - **Improvement** — how should the skill's strategy, instructions, or behavior change, and why?
+        - **Bug** — what you asked the agent to do, what you expected the skill to do, what actually happened (full agent output / error helps), and minimal repro steps.
+        - **Scope** — should the skill's scope be **decreased**, **increased**, or **shifted**? Be specific about which triggers/use cases to add or remove.
+        - **Something else** — describe what's going on and what you'd like to see happen.
       placeholder: |
         Steps to reproduce:
           1. ...
           2. ...
         Expected: ...
         Actual: ...
-
-  - type: textarea
-    id: scope_details
-    attributes:
-      label: "Scope: how should the scope change?"
-      description: |
-        Only fill in if you picked **Scope**. Describe how the scope of this skill should change to be more useful — should it be **decreased**, **increased**, or **shifted**? Be specific about which triggers/use cases to add or remove.
-      placeholder: |
-        e.g. Decrease scope: stop firing on plain chat questions about local models — only fire
-        when the user actually asks to generate an image, transcribe audio, or speak text.
-
-  - type: textarea
-    id: other_details
-    attributes:
-      label: "Something else: describe the issue"
-      description: Only fill in if you picked **Something else**. Describe what's going on and what you'd like to see happen.
+    validations:
+      required: true
 
   - type: markdown
     attributes:
