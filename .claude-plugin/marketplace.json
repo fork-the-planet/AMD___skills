@@ -25,6 +25,12 @@
       "source": "./skills/local-ai-use",
       "skills": "./",
       "description": "Route image generation, text-to-speech, and speech-to-text through a local AI Server to reduce token/cost usage."
+    },
+    {
+      "name": "rocm-doctor",
+      "source": "./skills/rocm-doctor",
+      "skills": "./",
+      "description": "Diagnose why ROCm, PyTorch, or llama.cpp isn't working on an AMD GPU. Matches the symptom against a fixed list of twelve known misconfigurations and proposes the next step."
     }
   ]
 }
