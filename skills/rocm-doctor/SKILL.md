@@ -1,25 +1,22 @@
 ---
 name: rocm-doctor
 description: >-
-  Diagnoses why ROCm, the HIP SDK, PyTorch, or llama.cpp fails on an AMD
-  GPU by matching symptoms against a closed catalog of known
-  misconfigurations on Linux and Windows, then either applies a low-risk
-  fix with consent or hands back the exact next step. Also routes
-  Lemonade, LM Studio, and Ollama users to the right upstream channel.
-  Use when the user says "ROCm/HIP isn't working", "torch.cuda.is_available()
-  is False on Radeon/Ryzen AI", "rocminfo can't find my GPU",
-  "hipInfo.exe can't see my Radeon", "amdhip64_6.dll could not be found",
-  "vcruntime140_1.dll missing", "HIP SDK installer left things broken",
-  "Adrenalin driver too old for the HIP SDK", "hipErrorNoBinaryForGpu",
-  "HSA_STATUS_ERROR_INVALID_ISA", "invalid device function",
-  "Unable to open /dev/kfd", "ROCk module is NOT loaded",
-  "libamdhip64.so cannot open shared object file", "ROCm wheel doesn't
-  see my gfx1151/gfx1150/gfx1103 (Strix Halo, Phoenix)", "iGPU/dGPU
-  collision", "multi-GPU hang on AMD"; or mentions HSA_OVERRIDE_GFX_VERSION,
-  HIP_VISIBLE_DEVICES, HIP_PATH, PYTORCH_ROCM_ARCH, render-group / /dev/kfd
-  permissions, amdgpu blacklist, Secure Boot, or asks where to file a
-  Lemonade / LM Studio / Ollama issue. Do NOT use for non-AMD GPUs,
-  fresh installs, performance tuning, or ROCm-on-WSL2.
+  Diagnoses why ROCm, the HIP SDK, PyTorch, or llama.cpp is broken on an
+  AMD GPU on Linux or Windows, and either applies a low-risk fix with
+  consent or hands back the exact next step. Also routes Lemonade, LM
+  Studio, and Ollama issues to the right upstream channel. Use when the
+  user reports that ROCm or HIP isn't working, torch.cuda.is_available()
+  is False Ryzen AI, rocminfo or hipInfo can't see the GPU,
+  or hits hipErrorNoBinaryForGpu,
+  HSA_STATUS_ERROR_INVALID_ISA, invalid device function, missing
+  amdhip64_6.dll, vcruntime140_1.dll, or libamdhip64.so, cannot open
+  /dev/kfd, ROCk module not loaded, an Adrenalin driver too old for the
+  HIP SDK, or a ROCm wheel that doesn't recognize gfx1151, gfx1150, or
+  gfx1103; or mentions HSA_OVERRIDE_GFX_VERSION,
+  HIP_VISIBLE_DEVICES, PYTORCH_ROCM_ARCH, render-group permissions,
+  amdgpu blacklist, Secure Boot, iGPU/dGPU collisions, or multi-GPU
+  hangs. Do not use for non-AMD GPUs, performance
+  tuning, or ROCm-on-WSL2.
 ---
 
 # ROCm Doctor
@@ -62,7 +59,7 @@ Out of scope:
   Adrenalin Pro plus the WSL kernel update on the Windows host -- those
   failure modes are not in this catalog. `examine.py` detects WSL via
   `/proc/version` and exits 2 with a route-out message; if the user wants
-  WSL specifically, point them at <https://rocm.docs.amd.com/projects/install-on-wsl/en/latest/>.
+  WSL specifically, point them at <https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/docs/install/installryz/wsl/howto_wsl.html>.
 
 ## Prerequisites
 

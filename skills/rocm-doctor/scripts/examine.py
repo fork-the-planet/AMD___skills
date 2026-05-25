@@ -1034,7 +1034,7 @@ def examine(requested_framework: str | None) -> Examination:
             "(it requires Adrenalin Pro + the WSL kernel update on the "
             "Windows host). Either run this script on the native Linux "
             "host, or follow AMD's WSL guide directly: "
-            "https://rocm.docs.amd.com/projects/install-on-wsl/en/latest/"
+            "https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/docs/install/installryz/wsl/howto_wsl.html"
         )
         return e
     if e.os_family == "linux":

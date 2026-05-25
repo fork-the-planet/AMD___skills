@@ -339,7 +339,7 @@ What's actually different on WSL:
 
 If a WSL user really does need a host-level ROCm fix, the right path is
 the WSL install guide:
-<https://rocm.docs.amd.com/projects/install-on-wsl/en/latest/>. Once
+<https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/docs/install/installryz/wsl/howto_wsl.html>. Once
 those WSL-specific prereqs are in place, the user is back to running
 either pure Windows (this skill) or pure native Linux (this skill); WSL
 itself stays out of scope.
