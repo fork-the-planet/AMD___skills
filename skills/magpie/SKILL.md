@@ -37,7 +37,7 @@ magpie analyze path/to/kernel.hip --testcase "./run_test.sh"
 - `--no-perf`: Skip performance profiling.
 - `-o`, `--output-dir`: Output directory (default: `./results`).
 
-**Config template (single kernel):** Use `kernel:` with `id`, `type`, `source_files`, `working_dir`, `testcase_command`, optional `compile_command`, `env`. See [Magpie/kernel_config.yaml.example](Magpie/kernel_config.yaml.example) and [examples/ck_gemm_add.yaml](examples/ck_gemm_add.yaml).
+**Config template (single kernel):** Use `kernel:` with `id`, `type`, `source_files`, `working_dir`, `testcase_command`, optional `compile_command`, `env`. See [Magpie/kernel_config.yaml.example](https://github.com/AMD-AGI/Magpie/blob/3820dccb9fc7eb06de92f6388886ad672e299ce5/Magpie/kernel_config.yaml.example) and [examples/ck_gemm_add.yaml](https://github.com/AMD-AGI/Magpie/blob/3820dccb9fc7eb06de92f6388886ad672e299ce5/examples/ck_gemm_add.yaml).
 
 ## Compare (multiple kernels)
 
@@ -59,7 +59,7 @@ magpie compare kernel1.hip kernel2.hip --testcase "./run_test.sh"
 - `--baseline`: Index of baseline kernel (default: 0).
 - `--no-perf`, `-o`: Same as analyze.
 
-Example: [examples/ck_grouped_gemm_compare.yaml](examples/ck_grouped_gemm_compare.yaml).
+Example: [examples/ck_grouped_gemm_compare.yaml](https://github.com/AMD-AGI/Magpie/blob/3820dccb9fc7eb06de92f6388886ad672e299ce5/examples/ck_grouped_gemm_compare.yaml).
 
 ## Benchmark (vLLM / SGLang)
 
@@ -81,7 +81,7 @@ magpie benchmark --benchmark-config examples/benchmark_vllm.yaml
 - `--run-mode`: `docker` (default) or `local`.
 - `--docker-image`, `--timeout`, `-o`: Override image, timeout (seconds), output dir.
 
-Example configs: [examples/benchmark_vllm.yaml](examples/benchmark_vllm.yaml), [docs/benchmark.md](docs/benchmark.md).
+Example configs: [examples/benchmark_vllm.yaml](https://github.com/AMD-AGI/Magpie/blob/3820dccb9fc7eb06de92f6388886ad672e299ce5/examples/benchmark_vllm.yaml), [docs/benchmark.md](https://github.com/AMD-AGI/Magpie/blob/3820dccb9fc7eb06de92f6388886ad672e299ce5/docs/benchmark.md).
 
 ## Gap analysis (standalone)
 
@@ -109,7 +109,7 @@ Shows vendor, architecture, compiler, profiler. No mode required.
 
 When the user needs a kernel config file:
 
-1. Emit YAML matching the structure in [Magpie/kernel_config.yaml.example](Magpie/kernel_config.yaml.example): `kernel:` with `id`, `type` (hip|cuda|pytorch), `source_files`, `working_dir`, `testcase_command`, and optionally `compile_command`, `env`.
+1. Emit YAML matching the structure in [Magpie/kernel_config.yaml.example](https://github.com/AMD-AGI/Magpie/blob/3820dccb9fc7eb06de92f6388886ad672e299ce5/Magpie/kernel_config.yaml.example): `kernel:` with `id`, `type` (hip|cuda|pytorch), `source_files`, `working_dir`, `testcase_command`, and optionally `compile_command`, `env`.
 2. Write the file to the user's requested path (e.g. `kernel_config.yaml`).
 3. Run: `magpie analyze --kernel-config <that_file>`.
 

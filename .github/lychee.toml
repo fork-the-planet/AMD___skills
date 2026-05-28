@@ -29,4 +29,11 @@ accept = ["200..=206", "429"]
 exclude = [
   # openai.com blocks GitHub-hosted runner IPs with 403; the page is fine
   '^https://openai\.com/codex/?$',
+
+  # Upstream link rot in the vendored `magpie` skill: its SKILL.md points at
+  # `examples/benchmark_vllm.yaml`, which doesn't exist in AMD-AGI/Magpie
+  # (the real configs live under `examples/benchmarks/benchmark_vllm_*.yaml`).
+  # The importer rewrites it to a pinned blob URL that 404s. Ignore just that
+  # one path (any commit) until upstream fixes the reference.
+  '^https://github\.com/AMD-AGI/Magpie/blob/[0-9a-f]+/examples/benchmark_vllm\.yaml$',
 ]

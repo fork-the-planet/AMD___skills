@@ -82,7 +82,7 @@ Diagnose, configure, and ready AMD systems for AI workloads: drivers, BIOS, memo
 
 ### Kernel engineering
 
-Author, tune, and reason about GPU kernels for AMD targets. All entries are federated from [`AMD-AGI/Apex`](https://github.com/AMD-AGI/Apex) at `main` (`tools/skills/`).
+Author, tune, and reason about GPU kernels for AMD targets.
 
 | Skill | What it does | Source |
 | --- | --- | --- |
