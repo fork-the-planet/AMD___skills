@@ -51,22 +51,10 @@
       "description": "Route image generation, text-to-speech, and speech-to-text through a local AI Server to reduce token/cost usage."
     },
     {
-      "name": "mi300-cdna3-architecture",
-      "source": "./skills/mi300-cdna3-architecture",
-      "skills": "./",
-      "description": "MI300/CDNA3 architecture guide for HIP/Triton optimization—MFMA variants, dual register files, data formats, sparsity, LDS/GWS, and best practices."
-    },
-    {
       "name": "mi300-hip-programming-insights",
       "source": "./skills/mi300-hip-programming-insights",
       "skills": "./",
       "description": "CDNA3/MI300 HIP programming insights—chiplet/cache model, Infinity Cache, memory coherency, matrix cores, sparsity, and best practices."
-    },
-    {
-      "name": "mi300-hip-vs-nvidia",
-      "source": "./skills/mi300-hip-vs-nvidia",
-      "skills": "./",
-      "description": "MI300 HIP programming differences vs NVIDIA—wavefront vs warp, memory hierarchy, MFMA usage, occupancy, and profiling pitfalls."
     },
     {
       "name": "pytorch-kernel-optimization",

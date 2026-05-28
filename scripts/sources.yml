@@ -35,9 +35,7 @@ sources:
       - gpu-architecture-fundamentals
       - hip-kernel-optimization
       - kernel-exp-history
-      - mi300-cdna3-architecture
       - mi300-hip-programming-insights
-      - mi300-hip-vs-nvidia
       - pytorch-kernel-optimization
       - rocprof-compute
       - triton-hip-reference-kernel-search
