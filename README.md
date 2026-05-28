@@ -18,11 +18,13 @@
 
 </div>
 
-AMD Skills give coding agents the knowledge, scripts, and conventions they need to work with AMD hardware and software. Each skill follows the standardized [Agent Skills](https://github.com/anthropics/skills) format and works with Cursor, Claude Code, OpenAI Codex, and Gemini CLI.
+AMD Skills provide agents with knowledge, scripts, and conventions for working with AMD hardware and software.
+
+Skills in this repository follow the standardized [Agent Skills](https://github.com/anthropics/skills) format and are designed to interoperate with the major coding agents like Cursor, Claude Code, OpenAI Codex, and Gemini CLI.
 
 ## Installation
 
-AMD Skills is built directly into Claude and Cursor. **No install. No setup.**
+AMD Skills is built directly into Claude and Cursor. **No install. No setup**
 
 Just ask something like: `"Use AMD Skills to integrate local AI into my app"`.
 
@@ -62,9 +64,9 @@ Embed AMD-optimized AI into end-user applications.
 | [`local-ai-app-integration`](skills/local-ai-app-integration/SKILL.md) | Integrate local AI into cloud LLM apps for offline support, better privacy, and lower API costs. | in-repo |
 | [`local-ai-use`](skills/local-ai-use/SKILL.md) | Route image generation, text-to-speech, and speech-to-text through a local AI server to reduce token cost. | in-repo |
 
-### Hardware-native skills
+### Platform readiness
 
-Diagnose, configure, and tune AMD devices directly.
+Diagnose, configure, and ready AMD systems for AI workloads: drivers, BIOS, memory pools, `gfx` targets, and framework setup.
 
 | Skill | What it does | Source |
 | --- | --- | --- |
@@ -72,10 +74,11 @@ Diagnose, configure, and tune AMD devices directly.
 | [`rocm-doctor`](skills/rocm-doctor/SKILL.md) | Diagnose ROCm / PyTorch / llama.cpp failures on AMD GPUs against a fixed list of known misconfigurations. | in-repo |
 | `mi-tuner` | Opinionated inference tuning for MI accelerators (TunableOp, FSDP, FlashAttention). | _planned_ |
 | `gfx-target-chooser` | Pick the right `gfx942` / `gfx90a` / `gfx1100` target and matching compiler flags. | _planned_ |
+| `pytorch-rocm-setup` | Get a known-good PyTorch + ROCm stack running on a target node, end to end. | _planned_ |
 
-### Kernel optimization
+### Kernel engineering
 
-Write, tune, and reason about GPU kernels for AMD targets. All entries are federated from [`AMD-AGI/Apex`](https://github.com/AMD-AGI/Apex) at `main` (`tools/skills/`).
+Author, tune, and reason about GPU kernels for AMD targets. All entries are federated from [`AMD-AGI/Apex`](https://github.com/AMD-AGI/Apex) at `main` (`tools/skills/`).
 
 | Skill | What it does | Source |
 | --- | --- | --- |
@@ -97,9 +100,8 @@ Bring existing workloads onto AMD.
 | --- | --- | --- |
 | `cuda-to-hip` | Port CUDA kernels with `hipify` and flag anything that needs manual review. | _planned_ |
 | `vllm-rocm` | Stand up vLLM on AMD with the right environment variables and model configurations. | _planned_ |
-| `pytorch-rocm-setup` | Get a known-good PyTorch + ROCm stack running on a target node, end to end. | _planned_ |
 
-### Profiling and delivery
+### Performance & delivery
 
 Close the loop from trace to fix to ship.
 
@@ -135,15 +137,26 @@ The AMD stack is large and moves fast. ROCm, HIP, Ryzen AI, and framework integr
 
 This repo also acts as an **incubator**: a skill can start under `skills/` to iterate quickly, then graduate to its product repo and be re-pointed from `scripts/sources.yml` once it has a clear owner, with no change for installed users.
 
-- **One install, full coverage.** Add this repository through your agent's plugin flow and you get the whole AMD catalog.
-- **Skills update with the products they describe.** When ROCm cuts a release, the ROCm team updates the ROCm skills as part of that release.
-- **Skills you can trust.** Each skill is signed off by the team that owns the underlying product.
+```
+skills/                  # All skills the agent can load (in-repo + vendored copies of federated)
+.cursor-plugin/          # Cursor plugin manifest
+.claude-plugin/          # Claude Code marketplace manifest
+.github/workflows/       # CI for validating skills and the `import-external-skills` workflow
+scripts/                 # Tooling for publishing, regenerating manifests, and importing
+scripts/sources.yml      # Master list of external skill sources for federation
+```
 
-Each vendored skill carries a `.federated.json` marker that records the upstream repo and pinned commit, so the importer can refresh or remove it without disturbing in-repo skills.
+In-repo skills are authored directly under `skills/`. Federated skills are
+declared in [`scripts/sources.yml`](scripts/sources.yml) and vendored into
+`skills/` by the manually-dispatched `import-external-skills` workflow,
+which opens a pull request with the imported copies. Each vendored skill
+carries a `.federated.json` marker that records the upstream repo and
+pinned commit, so the importer can refresh or remove it without disturbing
+in-repo skills.
 
-## Manual installation
+## Manual Installation
 
-AMD Skills are compatible with Cursor, Claude Code, OpenAI Codex, and Gemini CLI.
+AMD Skills are compatible with Cursor, Claude Code, OpenAI Codex, and Gemini CLI. The general flow:
 
 ### Cursor
 
@@ -160,7 +173,7 @@ Register this repository as a plugin marketplace, then install individual skills
 
 ### OpenAI Codex
 
-Copy or symlink the desired folders from `skills/` into one of Codex's standard skill locations (for example `$REPO_ROOT/.agents/skills` or `$HOME/.agents/skills`). Codex discovers `SKILL.md` files automatically.
+Copy or symlink the desired folders from `skills/` into one of Codex's standard skill locations (for example `$REPO_ROOT/.agents/skills` or `$HOME/.agents/skills`). Codex will discover the `SKILL.md` files automatically.
 
 ### Gemini CLI
 
@@ -172,7 +185,7 @@ gemini extensions install https://github.com/amd/skills.git --consent
 
 ## Using a skill
 
-Reference it in plain language while talking to your agent. The agent loads the matching `SKILL.md` and any helper scripts, then carries out the task.
+Once a skill is installed, reference it in plain language while talking to your agent. For example:
 
 - "Use AMD Skills to integrate local AI capabilities into my app with Embeddable Lemonade."
 - "Use AMD Skills to convert these CUDA kernels and flag anything that needs manual review."
