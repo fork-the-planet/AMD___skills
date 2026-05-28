@@ -52,6 +52,11 @@ Skills earn their keep on repeated, opinionated workflows, exactly where the AMD
 
 ## The catalog
 
+> [!IMPORTANT]
+> **The catalog is under active development.** Skills, categories, and descriptions are changing fast. Expect entries to appear, move, and get renamed without notice.
+>
+> **Target: ready for testing by June 12.** Until then, treat anything below as a preview.
+
 The initial catalog is organized into five focus areas.
 
 
@@ -108,7 +113,6 @@ Close the loop from trace to fix to ship.
 | Skill | What it does | Source |
 | --- | --- | --- |
 | [`rocprof-compute`](skills/rocprof-compute/SKILL.md) | Profile AMD GPU kernels with `rocprof-compute` to collect metrics, roofline data, and bottleneck analysis. | [Apex](https://github.com/AMD-AGI/Apex) |
-| `rocprof-capture` | Capture and interpret a `rocprof` trace for a workload. | _planned_ |
 | `omniperf-tune` | Run `omniperf`, locate the bottleneck, and suggest the fix. | _planned_ |
 | `quark-quantize` | Quantize PyTorch / ONNX models with [AMD Quark](https://github.com/amd/Quark) and export for AMD deployment. | _planned_ |
 
