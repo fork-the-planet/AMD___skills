@@ -3,7 +3,7 @@
 # requires-python = ">=3.10"
 # dependencies = ["pyyaml>=6.0"]
 # ///
-"""Import skills from external repositories listed in `catalog/sources.yml`.
+"""Import skills from external repositories listed in `scripts/sources.yml`.
 
 For each source, the script:
 
@@ -16,7 +16,7 @@ For each source, the script:
    skill (using the SKILL.md `description` as the marketplace blurb,
    unless the source declares an override).
 5. Removes any previously imported skill (one with a `.federated.json`)
-   that is no longer listed in `catalog/sources.yml`.
+   that is no longer listed in `scripts/sources.yml`.
 
 Usage:
     uv run scripts/import_external_skills.py            # write changes
@@ -43,7 +43,7 @@ from typing import Iterable
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-CATALOG_FILE = REPO_ROOT / "catalog" / "sources.yml"
+CATALOG_FILE = Path(__file__).resolve().parent / "sources.yml"
 SKILLS_DIR = REPO_ROOT / "skills"
 CLAUDE_MARKETPLACE = REPO_ROOT / ".claude-plugin" / "marketplace.json"
 MARKER_FILENAME = ".federated.json"
@@ -283,7 +283,7 @@ def update_marketplace(results: Iterable[ImportResult], dry_run: bool) -> bool:
 
     # Drop entries that point at skills that no longer exist on disk so
     # the importer also cleans up the marketplace when an entry is
-    # removed from `catalog/sources.yml`.
+    # removed from `scripts/sources.yml`.
     existing_dirs = {p.name for p in SKILLS_DIR.iterdir() if p.is_dir()}
     pruned = [p for p in plugins if not isinstance(p, dict) or p.get("name") in existing_dirs]
     if len(pruned) != len(plugins):
@@ -410,7 +410,7 @@ def main(argv: list[str] | None = None) -> int:
             if spec.folder in declared:
                 raise ValueError(
                     f"Skill name collision: {spec.folder!r} is listed by "
-                    "more than one source in catalog/sources.yml."
+                    "more than one source in scripts/sources.yml."
                 )
             declared.add(spec.folder)
         all_results.extend(import_source(source, args.dry_run, log))
