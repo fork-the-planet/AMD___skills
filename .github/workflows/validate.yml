@@ -82,3 +82,25 @@ jobs:
         with:
           args: --config .github/lychee.toml --offline --include-fragments --no-progress "./**/*.md"
           fail: true
+
+  # Single gate that aggregates the per-skill matrix and the repo-wide manifest
+  # checks. Branch protection can require just this one check: it only passes
+  # when every skill validated and the manifest job succeeded. Because matrix
+  # jobs always succeed individually under `fail-fast: false`, we inspect the
+  # job results explicitly rather than relying on `needs` short-circuiting.
+  validate:
+    name: Validate skills and plugin manifests
+    needs: [validate-skill, validate-manifests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all validation jobs passed
+        run: |
+          echo "validate-skill result: ${{ needs.validate-skill.result }}"
+          echo "validate-manifests result: ${{ needs.validate-manifests.result }}"
+          if [ "${{ needs.validate-skill.result }}" != "success" ] || \
+             [ "${{ needs.validate-manifests.result }}" != "success" ]; then
+            echo "One or more validation jobs failed." >&2
+            exit 1
+          fi
+          echo "All skill and manifest validations passed."
