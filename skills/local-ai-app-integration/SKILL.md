@@ -70,6 +70,10 @@ Record three things before continuing:
 3. **One single place** where the base URL and API key are constructed. If
    there isn't one, refactor to one before going further. Local-mode toggling
    must flip exactly one config object.
+4. **Any API-key gating** that blocks the app before a key is entered
+   (onboarding walls, validators that reject empty keys, startup checks that
+   disable AI until a key exists). Note each one — Step 5 bypasses them in
+   local mode.
 
 ## Step 2: Pick a model + backend profile
 
@@ -83,7 +87,8 @@ it.
 | Coding assistant | `Qwen2.5-Coder-7B-Instruct-GGUF` | `llamacpp` | Strong code, runs on iGPU |
 | Vision / multimodal chat | `Gemma-4-E2B-it-GGUF` | `llamacpp` | Small multimodal default |
 | NPU-first on Ryzen AI | `Llama-3.2-3B-Instruct-Hybrid` | `ryzenai-llm` | XDNA2 NPU on Windows |
-| Speech-to-text | `Whisper-Large-v3-Turbo` | `whispercpp` | Best quality/speed |
+| CPU Speech-to-text | `Whisper-Large-v3-Turbo` | `whispercpp` | Best quality/speed |
+| NPU speech-to-text | `whisper-v3-turbo-FLM` | `flm` | XDNA2 NPU on Windows |
 | Text-to-speech | `kokoro-v1` | `kokoro` | CPU-only, low latency |
 | Image generation | `SDXL-Turbo` | `sd-cpp` | Single-step generation |
 
@@ -93,7 +98,7 @@ unset. Override only if the app has hard hardware requirements.
 
 For more options and tradeoffs, see [reference.md](reference.md).
 
-## Step 3: Place Embeddable Lemonade in the app's tree
+## Step 3: Place Embeddable Lemonade in the app's tree and install backends
 
 Get the embeddable artifact from the latest Lemonade release:
 
@@ -131,9 +136,11 @@ vendor/lemonade/
   private to the app. Leave as `auto` only if the user explicitly wants to
   share weights with other apps.
 
-Strip what you don't ship: delete the `lemonade` CLI and
-`resources/defaults.json` from the shipping artifact once `config.json` is
-initialized.
+**Install the backend before running any model.** Right after placing
+`lemond`, install the backend your chosen recipe needs — a model won't load
+without it. Use the CLI at packaging time, e.g. `lemonade backends install
+flm:npu` (or `llamacpp:vulkan`, `sd-cpp:cpu`, etc.), or `POST /v1/install`
+at first run for hardware-specific backends like `llamacpp:rocm`.
 
 ## Step 4: Add a `lemond` launcher
 
@@ -242,6 +249,15 @@ and the API key. Nothing else.
 The model identifier on requests stays a Lemonade model name (e.g.
 `Qwen3-4B-GGUF`), not the cloud name.
 
+**Bypass the app's API-key gate in local mode.** A local backend needs no
+cloud key, so any onboarding wall, validator, or startup check that demands
+one must not block local-mode users. Skip or auto-satisfy the key-entry
+screen, treat local mode as already-authorized in validation logic, and
+re-enable the gate only for cloud mode. The `lemond` key from Step 4 is set
+internally by the launcher, so the user never enters one and any UI
+placeholder (e.g. `"local"`) is fine. Flipping into local mode should never
+strand the user on a key-entry wall.
+
 **Python (openai) example:**
 
 ```python
@@ -303,6 +319,8 @@ The integration is done when **all** of these are true:
 - [ ] The default model loads successfully via `POST /v1/load`.
 - [ ] The existing client's chat / image / speech call returns a valid
       response with the base URL and key swapped, with no other code changed.
+- [ ] In local mode the app's API-key gate is bypassed: no onboarding wall,
+      validator, or startup check blocks the user for lacking a cloud key.
 - [ ] Killing the parent process leaves no `lemond` subprocess behind.
 - [ ] On a fresh machine without the optimal backend, the app still works
       via the Vulkan fallback bundled in `bin/`.

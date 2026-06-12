@@ -12,7 +12,6 @@ by the default-path tables.
 - [Endpoint reference](#endpoint-reference)
 - [Config keys you may need to set](#config-keys-you-may-need-to-set)
 - [Per-model tuning via recipe_options.json](#per-model-tuning-via-recipe_optionsjson)
-- [Trimming the bundled artifact](#trimming-the-bundled-artifact)
 - [Linux packaging notes](#linux-packaging-notes)
 
 ---
@@ -39,13 +38,16 @@ hardware-optimized one at first run after a system probe.
 | `flm` | `npu` | XDNA2 NPU | Cannot be packaging-time bundled on Linux. |
 | `ryzenai-llm` | `npu` | XDNA2 NPU | Windows only. Best for the Hybrid model family. |
 
-### Speech-to-text (`whispercpp`)
+### Speech-to-text
 
-| Backend | Hardware | OS |
-|---|---|---|
-| `npu` | XDNA2 NPU | Windows |
-| `vulkan` | x86_64 CPU | Linux |
-| `cpu` | x86_64 CPU | Windows, Linux |
+Two NPU paths exist. **Prefer `flm` for NPU**.
+
+| Recipe | Backend | Model | Hardware | OS |
+|---|---|---|---|---|
+| `flm` | `npu` | `whisper-v3-turbo-FLM` | XDNA2 NPU | Windows |
+| `whispercpp` | `cpu` | `Whisper-Large-v3-Turbo` | x86_64 CPU | Windows, Linux |
+| `whispercpp` | `vulkan` | `Whisper-Large-v3-Turbo` | x86_64 CPU | Linux |
+| `whispercpp` | `npu` | `.rai`-cached whisper model | XDNA2 NPU | Windows (avoid) |
 
 ### Text-to-speech
 
@@ -76,11 +78,16 @@ ship a default and document how to override.
 | Multimodal (vision) chat | `Gemma-4-E2B-it-GGUF` | 2.0 GB | `llamacpp` |
 | Hybrid NPU chat (Ryzen AI) | `Llama-3.2-3B-Instruct-Hybrid` | 2.0 GB | `ryzenai-llm` |
 | Speech-to-text | `Whisper-Large-v3-Turbo` | 1.6 GB | `whispercpp` |
+| NPU speech-to-text (Ryzen AI) | `whisper-v3-turbo-FLM` | 0.6 GB | `flm` |
 | Text-to-speech | `kokoro-v1` | 0.3 GB | `kokoro` |
 | Image generation | `SDXL-Turbo` | 6.9 GB | `sd-cpp` |
 
-For the full catalog, fetch `GET /v1/models` after starting `lemond`, or
-read `vendor/lemonade/resources/server_models.json`.
+For a catalog with more models, fetch `GET /v1/models` after starting `lemond`.
+This is the **only** trusted source of available models. Never read or trust
+`vendor/lemonade/resources/server_models.json` (or any other static file) as a
+model catalog; it can be stale or incomplete. A model only appears in
+`GET /v1/models` once its backend is installed (see Step 3), so install the
+backend first or the list will look empty/incomplete.
 
 ---
 
@@ -135,7 +142,7 @@ All endpoints require `Authorization: Bearer {key}` when
 | Endpoint | Purpose |
 |---|---|
 | `GET  /api/v1/health` | Readiness probe and loaded-model list |
-| `GET  /api/v1/models` | List available models (filtered by `server_models.json`) |
+| `GET  /api/v1/models` | List available models |
 | `POST /api/v1/chat/completions` | OpenAI Chat Completions (text + vision + tool calls) |
 | `POST /api/v1/embeddings` | OpenAI Embeddings |
 | `POST /api/v1/audio/transcriptions` | OpenAI Whisper-style transcription |
@@ -189,7 +196,7 @@ hand-editing `config.json`, or at runtime via `POST /internal/set`.
 | `llamacpp_backend` | string | Pin to `rocm` / `vulkan` / `cpu` / `metal`; leave unset for auto |
 | `llamacpp_args` | string | Raw args appended to `llama-server` |
 | `sdcpp_backend` | string | `rocm` / `cpu` |
-| `whispercpp_backend` | string | `npu` / `vulkan` / `cpu` |
+| `whispercpp_backend` | string | `npu`/`cpu` (Windows), `cpu`/`vulkan` (Linux). For NPU prefer the `flm` recipe instead |
 | `whispercpp_args` | string | Raw whisper.cpp args |
 | `flm_args` | string | Raw FastFlowLM args |
 | `steps` | int | SD step count |
@@ -227,25 +234,6 @@ next to `config.json`. Example:
 ```
 
 This file is consulted on every model load. No restart required.
-
----
-
-## Trimming the bundled artifact
-
-The shipping artifact should be the smallest possible footprint. Strip:
-
-| File / dir | Keep? | Reason |
-|---|---|---|
-| `lemond[.exe]` | Yes | The only required binary |
-| `lemonade[.exe]` (CLI) | **No** | Only useful for packaging-time config; remove from installer |
-| `LICENSE` | Yes | Required by Apache 2.0 |
-| `resources/server_models.json` | Yes | Trim to only the models the app exposes |
-| `resources/backend_versions.json` | Yes | Pins backend versions for reproducibility |
-| `resources/defaults.json` | **No** (after first launch) | Only consumed once to seed `config.json` |
-| `bin/<recipe>/<backend>/` | Yes (one) | Bundle just the universal fallback (e.g. `llamacpp/vulkan`) |
-| `bin/<recipe>/<other backends>/` | **No** | Install on demand via `/v1/install` |
-| `models/` | Optional | Bundle one default model for offline install, or pull on first run |
-
 ---
 
 ## Linux packaging notes
