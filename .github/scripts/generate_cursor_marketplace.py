@@ -5,9 +5,11 @@
 # ///
 """Generate the Cursor marketplace manifest from the canonical sources.
 
-Both ecosystems use the same per-skill marketplace model: each skill under
-`skills/` is published as its own installable plugin. To avoid drift, the
-Cursor catalog is generated rather than hand-maintained.
+Both ecosystems use the same marketplace model: a single curated plugin
+(`amd-skills`) whose `source` is the repo root bundles the published skills
+listed in its `skills` array (the skill folders ship in place under `skills/`,
+so there is no separate plugin tree). The Cursor manifest mirrors the Claude
+marketplace one-for-one; to avoid drift it is generated, not hand-maintained.
 
 Sources of truth:
 - `plugin-metadata.json` (repo root): shared identity and discovery metadata
@@ -63,9 +65,13 @@ def check_identity_consistency(metadata: dict, claude: dict) -> list[str]:
             f".claude-plugin/marketplace.json `name` ({claude.get('name')!r}) "
             f"must match plugin-metadata.json `name` ({name!r})."
         )
-    if claude.get("description") != description:
+    # The marketplace schema only allows `name`, `owner`, `metadata`, and
+    # `plugins` at the root -- the human-readable blurb lives in
+    # `metadata.description`, not a top-level `description`.
+    claude_description = (claude.get("metadata") or {}).get("description")
+    if claude_description != description:
         errors.append(
-            ".claude-plugin/marketplace.json `description` must match "
+            ".claude-plugin/marketplace.json metadata.description must match "
             "plugin-metadata.json `description`."
         )
     claude_version = (claude.get("metadata") or {}).get("version")
@@ -85,7 +91,6 @@ def build_cursor_marketplace(metadata: dict, claude: dict) -> dict:
     return {
         "name": metadata["name"],
         "owner": {"name": owner_name} if owner_name else {},
-        "description": metadata["description"],
         "metadata": {
             "description": metadata["description"],
             "version": metadata["version"],
