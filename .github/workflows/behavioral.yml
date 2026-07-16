@@ -135,9 +135,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test_file="tests/test_$(echo '${{ matrix.skill }}' | tr '-' '_').py"
+          test_file="../../skills/${{ matrix.skill }}/evals/evals.py"
           echo "Running $test_file"
-          pytest "$test_file"
+          python -m pytest -c pytest.ini -p conftest "$test_file"
 
       - name: Run behavioral test for ${{ matrix.skill }} (Windows)
         if: matrix.os == 'Windows'
@@ -146,9 +146,9 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $skill = "${{ matrix.skill }}"
-          $test_file = "tests/test_$($skill -replace '-','_').py"
+          $test_file = "../../skills/$skill/evals/evals.py"
           Write-Host "Running $test_file"
-          pytest $test_file
+          python -m pytest -c pytest.ini -p conftest $test_file
 
   # Single aggregate gate. Mark THIS check required in branch protection.
   #
